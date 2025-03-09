@@ -5,22 +5,22 @@ import { Destination } from '../data/destinations';
 import { cn } from '@/lib/utils';
 
 interface AnswerOptionProps {
-  destination: Destination;
-  isSelected: boolean;
+  destination: string;
   isCorrect: boolean | null;
-  isAnswered: boolean;
   onSelect: (id: string) => void;
+  answer: string;
 }
 
 const AnswerOption: React.FC<AnswerOptionProps> = ({ 
   destination, 
-  isSelected, 
-  isCorrect, 
-  isAnswered, 
-  onSelect 
+  isCorrect,   
+  onSelect,
+  answer 
 }) => {
   let buttonVariant: "default" | "outline" | "secondary" | "destructive" = "outline";
-  
+  const isSelected = answer === destination;
+  const isAnswered = answer !== '';
+
   if (isAnswered) {
     if (isSelected) {
       buttonVariant = isCorrect ? "default" : "destructive";
@@ -38,10 +38,10 @@ const AnswerOption: React.FC<AnswerOptionProps> = ({
         isAnswered && isSelected && isCorrect && "bg-green-500 hover:bg-green-600",
         isAnswered && isSelected && !isCorrect && "bg-red-500 hover:bg-red-600"
       )}
-      onClick={() => !isAnswered && onSelect(destination.id)}
+      onClick={() => !isAnswered && onSelect(destination)}
       disabled={isAnswered}
     >
-      <span>{destination.name}, {destination.country}</span>
+      <span>{destination}</span>
     </Button>
   );
 };

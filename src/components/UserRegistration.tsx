@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '../context/UserContext';
 import { Globe } from 'lucide-react';
+import { useCreateUser } from '@/services/userCreateUser';
 
 interface UserRegistrationProps {
   onComplete: () => void;
@@ -14,12 +15,18 @@ interface UserRegistrationProps {
 const UserRegistration: React.FC<UserRegistrationProps> = ({ onComplete }) => {
   const [username, setUsername] = useState('');
   const { login } = useUser();
+  const { mutate: createUser, isPending } = useCreateUser();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (username.trim()) {
-      login(username.trim());
-      onComplete();
+      createUser({ username: username.trim(), userId: '' }, {
+        onSuccess: (response) => {
+          console.log(response);
+          login(username.trim());
+          onComplete();
+        }
+      });
     }
   };
 

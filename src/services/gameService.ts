@@ -1,4 +1,3 @@
-
 import { 
   destinations, 
   Destination, 
@@ -55,12 +54,21 @@ export const getDestinationById = (id: string): Destination | undefined => {
   return destinations.find(dest => dest.id === id);
 };
 
+interface UserData {
+  username: string;
+  stats?: {
+    totalPlayed: number;
+    correctAnswers: number;
+    incorrectAnswers: number;
+  };
+}
+
 // Local storage functions for user data
-export const saveUserData = (userData: any) => {
+export const saveUserData = (userData: UserData) => {
   localStorage.setItem('globetrotter_user', JSON.stringify(userData));
 };
 
-export const getUserData = () => {
+export const getUserData = (): UserData | null => {
   const data = localStorage.getItem('globetrotter_user');
   return data ? JSON.parse(data) : null;
 };

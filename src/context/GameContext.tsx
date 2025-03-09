@@ -1,6 +1,5 @@
-
-import React, { createContext, useContext, useState } from 'react';
-import { GameQuestion, generateQuestion, checkAnswer, getRandomFact } from '../services/gameService';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { GameQuestion, useRandomQuestion, useVerifyAnswer } from '../services/gameApiService';
 import { useUser } from './UserContext';
 import { toast } from '@/hooks/use-toast';
 
@@ -10,86 +9,88 @@ interface GameContextType {
   isAnswered: boolean;
   isCorrect: boolean | null;
   currentFact: string;
-  selectedAnswerId: string | null;
   generateNewQuestion: () => void;
-  submitAnswer: (answerId: string) => void;
+  answer:string;
+  submitAnswer: (answer: string) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { updateStats } = useUser();
-  const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isAnswered, setIsAnswered] = useState<boolean>(false);
+  const { updateStats, username } = useUser();  
+  const [answer, setAnswer] = useState<string>('');
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [generateNewQuestionLoading, setGenerateNewQuestionLoading] = useState<boolean>(false);
   const [currentFact, setCurrentFact] = useState<string>('');
-  const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
+  const { question, isLoading: isQuestionLoading } = useRandomQuestion(
+    generateNewQuestionLoading
+  );
+  const { verifyAnswer, isPending: isVerifyLoading } = useVerifyAnswer();
+
+  console.log('question,',question);
+
+  useEffect(()=>{
+    setGenerateNewQuestionLoading(true);
+  },[])
+  
+  const isLoading = isQuestionLoading;
 
   const generateNewQuestion = () => {
-    setIsLoading(true);
-    setIsAnswered(false);
+    setAnswer('');
     setIsCorrect(null);
-    setSelectedAnswerId(null);
-    
-    try {
-      // In a real implementation, this would be an API call
-      const newQuestion = generateQuestion();
-      setCurrentQuestion(newQuestion);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate a new question. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setCurrentFact('');
+    setGenerateNewQuestionLoading(true);
+  };  
 
-  const submitAnswer = (answerId: string) => {
-    if (!currentQuestion || isAnswered) return;
+  const submitAnswer = (answer: string) => {
+    if (!question || answer === '') return;
+    setAnswer(answer);
     
-    setSelectedAnswerId(answerId);
-    setIsAnswered(true);
-    
-    const correct = checkAnswer(currentQuestion, answerId);
-    setIsCorrect(correct);
-    
-    // Get a random fact
-    const fact = getRandomFact(currentQuestion.destination);
-    setCurrentFact(fact);
-    
-    // Update user stats
-    updateStats(correct);
-    
-    // Show success or error toast
-    if (correct) {
-      toast({
-        title: "Correct!",
-        description: `That's right! It's ${currentQuestion.destination.name}`,
-        variant: "default"
-      });
-    } else {
-      toast({
-        title: "Incorrect",
-        description: `The correct answer was ${currentQuestion.destination.name}`,
-        variant: "destructive"
-      });
-    }
+    verifyAnswer({
+      destinationId: question.id,
+      answer,
+      userName: username
+    }, {
+      onSuccess: (data) => {
+        setIsCorrect(data.isCorrect);
+        setCurrentFact(data.fact);       
+        
+        if (data.isCorrect) {
+          toast({
+            title: "Correct!",
+            description: `That's right! It's ${data.correctAnswer}`,
+            variant: "default"
+          });
+        } else {
+          toast({
+            title: "Incorrect",
+            description: `The correct answer was ${data.correctAnswer}`,
+            variant: "destructive"
+          });
+        }
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: "Failed to verify your answer. Please try again.",
+          variant: "destructive"
+        });
+        console.error("Error verifying answer:", error);
+      }
+    });
   };
 
   return (
     <GameContext.Provider
       value={{
-        currentQuestion,
+        currentQuestion : question,
         isLoading,
-        isAnswered,
-        isCorrect,
+        isAnswered: answer !== '',
+        isCorrect,        
         currentFact,
-        selectedAnswerId,
         generateNewQuestion,
         submitAnswer,
+        answer
       }}
     >
       {children}

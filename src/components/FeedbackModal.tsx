@@ -48,8 +48,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
   return (
     <>
-      {isCorrect && <div ref={containerRef} className="confetti-container" />}
-      
+      {isCorrect && <div ref={containerRef} className="confetti-container" />}      
       <Card className={`max-w-md w-full mx-auto border-4 animate-scale-in ${isCorrect ? 'border-green-500' : 'border-red-500'}`}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

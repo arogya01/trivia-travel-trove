@@ -12,22 +12,15 @@ import { useUser } from '../context/UserContext';
 const GameCard: React.FC = () => {
   const { 
     currentQuestion, 
-    isLoading, 
-    isAnswered, 
-    isCorrect, 
+    isLoading,     
     currentFact, 
-    selectedAnswerId,
     generateNewQuestion, 
-    submitAnswer 
+    submitAnswer, 
+    answer,
+    isCorrect
   } = useGame();
-  
   const { isLoggedIn } = useUser();
-  
-  useEffect(() => {
-    if (!currentQuestion) {
-      generateNewQuestion();
-    }
-  }, [currentQuestion, generateNewQuestion]);
+    
   
   if (isLoading) {
     return (
@@ -44,16 +37,9 @@ const GameCard: React.FC = () => {
     return null;
   }
   
+  
   return (
-    <div className="w-full max-w-xl mx-auto">
-      {isAnswered && isCorrect !== null ? (
-        <FeedbackModal
-          isCorrect={isCorrect}
-          fact={currentFact}
-          destinationName={currentQuestion.destination.name}
-          onNextQuestion={generateNewQuestion}
-        />
-      ) : (
+    <div className="w-full max-w-xl mx-auto">      
         <Card className="border shadow-md transition-all duration-300 hover:shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -66,16 +52,15 @@ const GameCard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="bg-gray-50 p-4 mb-4 rounded-md">
-              <p className="text-gray-700 italic">"{currentQuestion.clue}"</p>
+              <p className="text-gray-700 italic">"{currentQuestion.clues[0]}"</p>
             </div>
             <div className="grid gap-3 mt-4">
-              {currentQuestion.options.map((option) => (
+              {currentQuestion.choices.map((option) => (
                 <AnswerOption
-                  key={option.id}
-                  destination={option}
-                  isSelected={selectedAnswerId === option.id}
+                  key={option}
+                  answer={answer}
+                  destination={option}                  
                   isCorrect={isCorrect}
-                  isAnswered={isAnswered}
                   onSelect={submitAnswer}
                 />
               ))}
@@ -92,7 +77,7 @@ const GameCard: React.FC = () => {
             </Button>
           </CardFooter>
         </Card>
-      )}
+      
     </div>
   );
 };
