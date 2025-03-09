@@ -17,11 +17,14 @@ const GameCard: React.FC = () => {
     generateNewQuestion, 
     submitAnswer, 
     answer,
-    isCorrect
+    isCorrect,
+    isQueriedAns
   } = useGame();
   const { isLoggedIn } = useUser();
     
   
+
+
   if (isLoading) {
     return (
       <Card className="w-full max-w-xl mx-auto border shadow-md">
@@ -38,7 +41,7 @@ const GameCard: React.FC = () => {
   }
   
   
-  return (
+  return answer === '' && isCorrect === null && isQueriedAns ? (
     <div className="w-full max-w-xl mx-auto">      
         <Card className="border shadow-md transition-all duration-300 hover:shadow-lg">
           <CardHeader>
@@ -77,9 +80,15 @@ const GameCard: React.FC = () => {
             </Button>
           </CardFooter>
         </Card>
-      
-    </div>
-  );
+      </div>
+    ) : (
+      <FeedbackModal 
+        isCorrect={isCorrect} 
+        fact={currentFact} 
+        destinationName={answer} 
+        onNextQuestion={generateNewQuestion}
+      />
+    );
 };
 
 export default GameCard;

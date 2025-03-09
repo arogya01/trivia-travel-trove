@@ -20,13 +20,6 @@ const ScoreTracker: React.FC = () => {
             <CheckCircle className="h-5 w-5 text-green-500" />
             <span className="font-medium">{stats.correctAnswers}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <XCircle className="h-5 w-5 text-red-500" />
-            <span className="font-medium">{stats.incorrectAnswers}</span>
-          </div>
-          <div className="text-gray-600">
-            {stats.totalPlayed > 0 ? `${correctPercentage}%` : '-'}
-          </div>
         </div>
       </CardContent>
     </Card>

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { saveUserData, getUserData } from '../services/gameService';
+import { useGetUserDetails } from '@/services/useGetUserDetails';
 
 interface UserStats {
   totalPlayed: number;
@@ -25,25 +26,30 @@ const initialStats: UserStats = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [username, setUsername] = useState<string>('');
+  const [username, setUsername] = useState<string>(getUserData());
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [stats, setStats] = useState<UserStats>(initialStats);
+  const { userDetails, isLoading, error } = useGetUserDetails();
+
 
   // Load user data from local storage on initial render
   useEffect(() => {
-    const userData = getUserData();
-    if (userData) {
-      setUsername(userData.username);
+    if (userDetails) {    
+      setUsername(userDetails.username);
       setIsLoggedIn(true);
-      setStats(userData.stats || initialStats);
+      const stats = {
+        totalPlayed: userDetails.gamesPlayed,
+        correctAnswers: userDetails.correctAnswers,
+        incorrectAnswers: userDetails.incorrectAnswers,
+      }
+      setStats(stats);
     }
   }, []);
 
   const login = (name: string) => {
     setUsername(name);
-    setIsLoggedIn(true);
-    const userData = { username: name, stats: initialStats };
-    saveUserData(userData);
+    setIsLoggedIn(true);    
+    saveUserData(name);
   };
 
   const logout = () => {

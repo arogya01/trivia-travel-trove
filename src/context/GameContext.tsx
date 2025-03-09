@@ -11,6 +11,7 @@ interface GameContextType {
   currentFact: string;
   generateNewQuestion: () => void;
   answer:string;
+  isQueriedAns: boolean;
   submitAnswer: (answer: string) => void;
 }
 
@@ -25,9 +26,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { question, isLoading: isQuestionLoading } = useRandomQuestion(
     generateNewQuestionLoading
   );
-  const { verifyAnswer, isPending: isVerifyLoading } = useVerifyAnswer();
-
-  console.log('question,',question);
+  const { verifyAnswer, isPending: isVerifyLoading, isSuccess: isVerifySuccess } = useVerifyAnswer();
 
   useEffect(()=>{
     setGenerateNewQuestionLoading(true);
@@ -86,6 +85,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentQuestion : question,
         isLoading,
         isAnswered: answer !== '',
+        isQueriedAns: isVerifySuccess,
         isCorrect,        
         currentFact,
         generateNewQuestion,

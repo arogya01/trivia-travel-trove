@@ -33,12 +33,14 @@ export interface VerifyAnswerResponse {
 // Hook to fetch a random question
 export const useRandomQuestion = (generateNewQuestionLoading: boolean) => {
   const { data, error, isLoading, refetch } = useQuery({
-    queryKey: ['randomQuestion'],
+    queryKey:['randomQuestion'],
     queryFn: async () => {
       const response = await axios.get<GameQuestion>(`${baseURL}/api/game/random`);
       return response.data;
     },
     enabled: generateNewQuestionLoading,
+    staleTime: 0,
+    gcTime:0
   });
 
   return {
@@ -50,7 +52,7 @@ export const useRandomQuestion = (generateNewQuestionLoading: boolean) => {
 
 // Hook to verify an answer
 export const useVerifyAnswer = () => {
-  const { mutate, data, error, isPending } = useMutation({
+  const { mutate, data, error, isPending, isSuccess } = useMutation({
     mutationFn: async (verifyRequest: VerifyAnswerRequest) => {
       const response = await axios.post<VerifyAnswerResponse>(
         `${baseURL}/api/game/verify`, 
@@ -64,6 +66,7 @@ export const useVerifyAnswer = () => {
     verifyAnswer: mutate,
     result: data,
     error,
-    isPending
+    isPending,
+    isSuccess
   };
 }; 

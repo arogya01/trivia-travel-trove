@@ -54,23 +54,14 @@ export const getDestinationById = (id: string): Destination | undefined => {
   return destinations.find(dest => dest.id === id);
 };
 
-interface UserData {
-  username: string;
-  stats?: {
-    totalPlayed: number;
-    correctAnswers: number;
-    incorrectAnswers: number;
-  };
-}
-
 // Local storage functions for user data
-export const saveUserData = (userData: UserData) => {
-  localStorage.setItem('globetrotter_user', JSON.stringify(userData));
+export const saveUserData = (userData: string) => {
+  localStorage.setItem('globetrotter_user', userData);
 };
 
-export const getUserData = (): UserData | null => {
-  const data = localStorage.getItem('globetrotter_user');
-  return data ? JSON.parse(data) : null;
+export const getUserData = (): string => {
+  const data = localStorage.getItem('globetrotter_user') || '';
+  return data;
 };
 
 // Generate share link
