@@ -1,8 +1,8 @@
-
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { X, CheckCircle, XCircle } from 'lucide-react';
+import ReactConfetti from 'react-confetti';
 
 interface FeedbackModalProps {
   isCorrect: boolean;
@@ -17,38 +17,55 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
   destinationName,
   onNextQuestion,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [windowDimensions, setWindowDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    if (isCorrect) {
-      createConfetti();
-    }
-  }, [isCorrect]);
+    // Update window dimensions when the component mounts
+    const handleResize = () => {
+      setWindowDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
 
-  const createConfetti = () => {
-    if (!containerRef.current) return;
-    
-    const container = containerRef.current;
-    container.innerHTML = '';
-    
-    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
-    
-    for (let i = 0; i < 100; i++) {
-      const confetti = document.createElement('div');
-      confetti.className = 'confetti';
-      confetti.style.left = `${Math.random() * 100}%`;
-      confetti.style.top = `-50px`;
-      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.animationDuration = `${Math.random() * 2 + 2}s`;
-      confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+    window.addEventListener('resize', handleResize);
+
+    // Show confetti if the answer is correct
+    if (isCorrect) {
+      setShowConfetti(true);
       
-      container.appendChild(confetti);
+      // Hide confetti after 5 seconds
+      const timer = setTimeout(() => {
+        setShowConfetti(false);
+      }, 5000);
+      
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('resize', handleResize);
+      };
     }
-  };
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isCorrect]);
 
   return (
     <>
-      {isCorrect && <div ref={containerRef} className="confetti-container" />}      
+      {showConfetti && (
+        <ReactConfetti
+          width={windowDimensions.width}
+          height={windowDimensions.height}
+          recycle={false}
+          numberOfPieces={200}
+          gravity={0.2}
+          colors={['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']}
+        />
+      )}
       <Card className={`max-w-md w-full mx-auto border-4 animate-scale-in ${isCorrect ? 'border-green-500' : 'border-red-500'}`}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

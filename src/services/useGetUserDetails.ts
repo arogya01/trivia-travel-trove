@@ -15,20 +15,24 @@ interface UserDetails {
 
 export const useGetUserDetails = () => {
   const userName = getUserData(); 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error , isSuccess} = useQuery({
     queryKey: ['userDetails'],
     queryFn: async () => {
-        const response = await axios.get<UserDetails>(`${baseURL}/api/user/username/${userName}`);
+        const response = await axios.get<UserDetails>(`${baseURL}/api/users/username/${userName}`);
         return response.data;
       },
       enabled: !!userName,
-      staleTime: 0,
-      gcTime:0
+      staleTime: Infinity,
+      gcTime:Infinity,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,      
   });
 
   return {
     userDetails: data,
     isLoading,
+    isSuccess,
     error
   };
 };

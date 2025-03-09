@@ -6,7 +6,7 @@ import { useUser } from "@/context/UserContext";
 
 // Main game component that checks user login status
 export const GameScreen: React.FC = () => {
-    const { isLoggedIn } = useUser();
+    const { isLoggedIn, username } = useUser();
     const [showGame, setShowGame] = useState(false);
     
     // Function to handle registration completion
@@ -16,10 +16,13 @@ export const GameScreen: React.FC = () => {
     
     // Check if user is already logged in on mount
     useEffect(() => {
-      if (isLoggedIn) {
+      if (isLoggedIn && username) {
         setShowGame(true);
       }
-    }, [isLoggedIn]);
+      else {
+        setShowGame(false);
+      }
+    }, [isLoggedIn, username]);
     
     return (
       <div className="container mx-auto px-4 py-6">

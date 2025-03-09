@@ -14,7 +14,12 @@ interface UserContextType {
   stats: UserStats;
   login: (username: string) => void;
   logout: () => void;
-  updateStats: (correct: boolean) => void;
+  updateStats: ({gamesPlayed, correctAnswers, incorrectAnswers}: {
+    gamesPlayed: number;
+    correctAnswers: number;
+    incorrectAnswers: number;
+  }) => void;
+  isUserDetailsLoading: boolean;
 }
 
 const initialStats: UserStats = {
@@ -29,12 +34,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [username, setUsername] = useState<string>(getUserData());
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [stats, setStats] = useState<UserStats>(initialStats);
-  const { userDetails, isLoading, error } = useGetUserDetails();
+  const { userDetails, isLoading, isSuccess } = useGetUserDetails();
 
 
   // Load user data from local storage on initial render
   useEffect(() => {
-    if (userDetails) {    
+    if (userDetails && isSuccess) {    
       setUsername(userDetails.username);
       setIsLoggedIn(true);
       const stats = {
@@ -44,7 +49,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setStats(stats);
     }
-  }, []);
+  }, [isSuccess, userDetails]);
 
   const login = (name: string) => {
     setUsername(name);
@@ -58,19 +63,21 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('globetrotter_user');
   };
 
-  const updateStats = (correct: boolean) => {
+  const updateStats = ({gamesPlayed, correctAnswers, incorrectAnswers}: {
+    gamesPlayed: number;
+    correctAnswers: number;
+    incorrectAnswers: number;
+  }) => {
     const newStats = {
-      totalPlayed: stats.totalPlayed + 1,
-      correctAnswers: stats.correctAnswers + (correct ? 1 : 0),
-      incorrectAnswers: stats.incorrectAnswers + (correct ? 0 : 1),
-    };
-    
-    setStats(newStats);
-    saveUserData({ username, stats: newStats });
+      totalPlayed: gamesPlayed,
+      correctAnswers: correctAnswers,
+      incorrectAnswers: incorrectAnswers,
+    };    
+    setStats(newStats);    
   };
 
   return (
-    <UserContext.Provider value={{ username, isLoggedIn, stats, login, logout, updateStats }}>
+    <UserContext.Provider value={{ username, isLoggedIn, stats, login, logout, updateStats,isUserDetailsLoading: isLoading }}>
       {children}
     </UserContext.Provider>
   );

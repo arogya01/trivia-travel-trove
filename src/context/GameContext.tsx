@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { GameQuestion, useRandomQuestion, useVerifyAnswer } from '../services/gameApiService';
 import { useUser } from './UserContext';
 import { toast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface GameContextType {
   currentQuestion: GameQuestion | null;
@@ -20,17 +21,12 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { updateStats, username } = useUser();  
   const [answer, setAnswer] = useState<string>('');
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [generateNewQuestionLoading, setGenerateNewQuestionLoading] = useState<boolean>(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);  
   const [currentFact, setCurrentFact] = useState<string>('');
-  const { question, isLoading: isQuestionLoading } = useRandomQuestion(
-    generateNewQuestionLoading
-  );
+  const { question, isLoading: isQuestionLoading } = useRandomQuestion();
+  const queryClient = useQueryClient();
   const { verifyAnswer, isPending: isVerifyLoading, isSuccess: isVerifySuccess } = useVerifyAnswer();
-
-  useEffect(()=>{
-    setGenerateNewQuestionLoading(true);
-  },[])
+  
   
   const isLoading = isQuestionLoading;
 
@@ -38,7 +34,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAnswer('');
     setIsCorrect(null);
     setCurrentFact('');
-    setGenerateNewQuestionLoading(true);
+    queryClient.invalidateQueries({ queryKey: ['randomQuestion'] });
   };  
 
   const submitAnswer = (answer: string) => {
@@ -53,7 +49,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       onSuccess: (data) => {
         setIsCorrect(data.isCorrect);
         setCurrentFact(data.fact);       
-        
+        const {gamesPlayed, correctAnswers, incorrectAnswers} = data.user;
+        updateStats({
+          gamesPlayed,
+          correctAnswers,
+          incorrectAnswers
+        });
         if (data.isCorrect) {
           toast({
             title: "Correct!",

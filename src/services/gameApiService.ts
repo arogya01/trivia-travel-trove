@@ -31,16 +31,19 @@ export interface VerifyAnswerResponse {
 }
 
 // Hook to fetch a random question
-export const useRandomQuestion = (generateNewQuestionLoading: boolean) => {
+export const useRandomQuestion = () => {
   const { data, error, isLoading, refetch } = useQuery({
     queryKey:['randomQuestion'],
     queryFn: async () => {
       const response = await axios.get<GameQuestion>(`${baseURL}/api/game/random`);
       return response.data;
     },
-    enabled: generateNewQuestionLoading,
+    enabled: true,
     staleTime: 0,
-    gcTime:0
+    gcTime:0, 
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
   return {

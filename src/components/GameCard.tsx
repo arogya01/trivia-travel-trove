@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import FeedbackModal from './FeedbackModal';
 import ChallengeButton from './ChallengeButton';
 import { useGame } from '../context/GameContext';
 import { useUser } from '../context/UserContext';
+import { Loading } from './ui/loading';
 
 const GameCard: React.FC = () => {
   const { 
@@ -21,16 +21,12 @@ const GameCard: React.FC = () => {
     isQueriedAns
   } = useGame();
   const { isLoggedIn } = useUser();
-    
-  
-
 
   if (isLoading) {
     return (
       <Card className="w-full max-w-xl mx-auto border shadow-md">
-        <CardContent className="flex flex-col items-center justify-center min-h-[300px]">
-          <Globe className="h-16 w-16 text-travel-blue animate-pulse-scale" />
-          <p className="text-gray-500 mt-4">Loading next destination...</p>
+        <CardContent className="min-h-[300px]">
+          <Loading text="Loading next destination..." />
         </CardContent>
       </Card>
     );
@@ -39,9 +35,20 @@ const GameCard: React.FC = () => {
   if (!currentQuestion) {
     return null;
   }
-  
-  
-  return answer === '' && isCorrect === null && isQueriedAns ? (
+
+  if(answer !== '' && isCorrect !== null && isQueriedAns) {
+    return (
+      <FeedbackModal 
+        isCorrect={isCorrect} 
+        fact={currentFact} 
+        destinationName={answer} 
+        onNextQuestion={generateNewQuestion}
+      />
+    );
+  }
+
+
+  return (
     <div className="w-full max-w-xl mx-auto">      
         <Card className="border shadow-md transition-all duration-300 hover:shadow-lg">
           <CardHeader>
@@ -81,14 +88,7 @@ const GameCard: React.FC = () => {
           </CardFooter>
         </Card>
       </div>
-    ) : (
-      <FeedbackModal 
-        isCorrect={isCorrect} 
-        fact={currentFact} 
-        destinationName={answer} 
-        onNextQuestion={generateNewQuestion}
-      />
-    );
+  );
 };
 
 export default GameCard;
