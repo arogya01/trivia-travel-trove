@@ -13,20 +13,22 @@ interface UserDetails {
     incorrectAnswers: number;
 }
 
-export const useGetUserDetails = () => {
-  const userName = getUserData(); 
-  const { data, isLoading, error , isSuccess} = useQuery({
-    queryKey: ['userDetails'],
+export const useGetUserDetails = (overrideUsername?: string) => {
+  const storedUsername = getUserData();
+  const userName = overrideUsername || storedUsername;
+  
+  const { data, isLoading, error, isSuccess } = useQuery({
+    queryKey: ['userDetails', userName],
     queryFn: async () => {
         const response = await axios.get<UserDetails>(`${baseURL}/api/users/username/${userName}`);
         return response.data;
       },
       enabled: !!userName,
-      staleTime: Infinity,
-      gcTime:Infinity,
+      staleTime: overrideUsername ? 1000 * 60 * 5 : Infinity, // 5 minutes for challenger, Infinity for current user
+      gcTime: overrideUsername ? 1000 * 60 * 5 : Infinity,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
-      refetchOnReconnect: false,      
+      refetchOnReconnect: false,
   });
 
   return {
