@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Share, CheckCircle } from 'lucide-react';
 import {
@@ -12,15 +11,47 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useUser } from '../context/UserContext';
+import { useGame } from '../context/GameContext';
 import { generateShareLink } from '../services/gameService';
 import { toast } from '@/hooks/use-toast';
+import ImageGenerator from './ImageGenerator';
+import { createTravelPrompt } from '../utils/imageUtils';
 
 const ChallengeButton: React.FC = () => {
   const { username, stats } = useUser();
+  const { currentQuestion, answer, isCorrect, correctAnswer } = useGame();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [shouldGenerateImage, setShouldGenerateImage] = useState(false);
   
   const shareLink = generateShareLink(username);
+  
+  // Get the current place information
+  // If the user answered correctly, use their answer
+  // If they answered incorrectly, use the correct answer from the API
+  const currentPlace = isCorrect === true ? answer : (isCorrect === false ? correctAnswer : '');
+  
+  // Get one of the choices as the country (this is a simplification)
+  // In a real app, you might want to have a mapping of places to countries
+  const currentCountry = currentQuestion?.choices[0] || '';
+  
+  const imagePrompt = createTravelPrompt(
+    stats.correctAnswers, 
+    stats.totalPlayed,
+    currentPlace,
+    currentPlace ? '' : currentCountry // Only use country if we don't have a specific place
+  );
+  
+  // Reset image and set generate flag when dialog is opened
+  useEffect(() => {
+    if (open) {
+      setShouldGenerateImage(true);
+    } else {
+      setGeneratedImageUrl(null);
+      setShouldGenerateImage(false);
+    }
+  }, [open]);
   
   const copyToClipboard = async () => {
     try {
@@ -47,6 +78,11 @@ const ChallengeButton: React.FC = () => {
     window.open(whatsappUrl, '_blank');
   };
 
+  const handleImageGenerated = (imageUrl: string) => {
+    setGeneratedImageUrl(imageUrl);
+    setShouldGenerateImage(false); // Prevent regeneration
+  };
+
   return (
     <>
       <Button 
@@ -63,8 +99,27 @@ const ChallengeButton: React.FC = () => {
             <DialogTitle>Challenge your friends</DialogTitle>
             <DialogDescription>
               Share this link with friends to challenge them to beat your score of {stats.correctAnswers}/{stats.totalPlayed}
+              {currentPlace && (
+                <span className="block mt-1 text-sm">
+                  Your image will feature {currentPlace}!
+                </span>
+              )}
             </DialogDescription>
           </DialogHeader>
+          
+          {/* Image Generator Section */}
+          <div className="my-4">
+            <ImageGenerator 
+              prompt={imagePrompt}
+              width={320}
+              height={320}
+              onImageGenerated={handleImageGenerated}
+              currentPlace={currentPlace}
+              currentCountry={currentPlace ? '' : currentCountry}
+              autoGenerate={shouldGenerateImage}
+            />
+          </div>
+          
           <div className="flex items-center space-x-2">
             <div className="grid flex-1 gap-2">
               <Input

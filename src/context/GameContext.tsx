@@ -10,6 +10,7 @@ interface GameContextType {
   isAnswered: boolean;
   isCorrect: boolean | null;
   currentFact: string;
+  correctAnswer: string;
   generateNewQuestion: () => void;
   answer:string;
   isQueriedAns: boolean;
@@ -23,6 +24,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [answer, setAnswer] = useState<string>('');
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);  
   const [currentFact, setCurrentFact] = useState<string>('');
+  const [correctAnswer, setCorrectAnswer] = useState<string>('');
   const { question, isLoading: isQuestionLoading } = useRandomQuestion();
   const queryClient = useQueryClient();
   const { verifyAnswer, isPending: isVerifyLoading, isSuccess: isVerifySuccess } = useVerifyAnswer();
@@ -34,6 +36,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAnswer('');
     setIsCorrect(null);
     setCurrentFact('');
+    setCorrectAnswer('');
     queryClient.invalidateQueries({ queryKey: ['randomQuestion'] });
   };  
 
@@ -48,7 +51,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, {
       onSuccess: (data) => {
         setIsCorrect(data.isCorrect);
-        setCurrentFact(data.fact);       
+        setCurrentFact(data.fact);
+        setCorrectAnswer(data.correctAnswer);
         const {gamesPlayed, correctAnswers, incorrectAnswers} = data.user;
         updateStats({
           gamesPlayed,
@@ -89,6 +93,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isQueriedAns: isVerifySuccess,
         isCorrect,        
         currentFact,
+        correctAnswer,
         generateNewQuestion,
         submitAnswer,
         answer

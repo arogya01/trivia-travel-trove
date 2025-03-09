@@ -59,6 +59,20 @@ This project is built with .
 - React
 - shadcn-ui
 - Tailwind CSS
+- Together AI (for image generation)
+
+## Together AI Integration
+
+This project uses Together AI for generating travel-themed images. To set up the integration:
+
+1. Sign up for an account at [Together AI](https://www.together.ai/)
+2. Get your API key from the Together AI dashboard
+3. Create a `.env.local` file in the root of your project (if it doesn't exist)
+4. Add your API key to the `.env.local` file:
+   ```
+   NEXT_PUBLIC_TOGETHER_API_KEY=your_together_api_key_here
+   ```
+5. Restart your development server
 
 ## How can I deploy this project?
 

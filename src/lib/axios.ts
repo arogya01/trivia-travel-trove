@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Create a base API URL - replace with your actual API base URL
-export const baseURL = 'http://localhost:3000';
+export const baseURL = 'https://travel-trivia-be.onrender.com';
 
 // Create a single axios instance for the app
 const axiosInstance = axios.create({
