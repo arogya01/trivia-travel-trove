@@ -89,7 +89,7 @@
   }
 
   body {
-    @apply bg-background text-foreground bg-map-pattern bg-world-gradient min-h-screen;
+    @apply bg-background text-foreground bg-map-pattern bg-world-gradient min-h-screen font-sans;
   }
 
   h1,
