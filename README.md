@@ -57,10 +57,10 @@ This project uses Together AI for generating travel-themed images. To set up the
 
 1. Sign up for an account at [Together AI](https://www.together.ai/)
 2. Get your API key from the Together AI dashboard
-3. Create a `.env.local` file in the root of your project (if it doesn't exist)
-4. Add your API key to the `.env.local` file:
+3. Create a `.env` file in the root of your project (if it doesn't exist)
+4. Add your API key to the `.env` file:
    ```
-   NEXT_PUBLIC_TOGETHER_API_KEY=your_together_api_key_here
+   VITE_TOGETHER_API_KEY=your_together_api_key_here
    ```
 5. Restart your development server
 

@@ -16,7 +16,7 @@ export const generateImage = async (
 ): Promise<string | null> => {
   try {
     const together = new Together({
-      apiKey: import.meta.env.TOGETHER_API_KEY,
+      apiKey: import.meta.env.VITE_TOGETHER_API_KEY,
     });
 
     // Using a type assertion to handle the API's expected format
