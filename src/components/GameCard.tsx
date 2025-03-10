@@ -18,6 +18,7 @@ const GameCard: React.FC = () => {
     submitAnswer, 
     answer,
     isCorrect,
+    correctAnswer,
     isQueriedAns
   } = useGame();
   const { isLoggedIn } = useUser();
@@ -43,6 +44,7 @@ const GameCard: React.FC = () => {
         fact={currentFact} 
         destinationName={answer} 
         onNextQuestion={generateNewQuestion}
+        correctAnswer={correctAnswer}
       />
     );
   }

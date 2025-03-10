@@ -9,6 +9,7 @@ interface FeedbackModalProps {
   fact: string;
   destinationName: string;
   onNextQuestion: () => void;
+  correctAnswer: string;
 }
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({
@@ -16,6 +17,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
   fact,
   destinationName,
   onNextQuestion,
+  correctAnswer
 }) => {
   const [windowDimensions, setWindowDimensions] = useState({
     width: window.innerWidth,
@@ -84,7 +86,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
           <CardDescription>
             {isCorrect 
               ? `Great job! You correctly identified ${destinationName}!` 
-              : `The correct answer was ${destinationName}.`}
+              : `The correct answer was ${correctAnswer}.`}
           </CardDescription>
         </CardHeader>
         <CardContent>
